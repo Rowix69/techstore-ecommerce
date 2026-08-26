@@ -1,0 +1,11 @@
+# Archivos del sistema operativo
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Carpetas de editores de código
+.vscode/
+.idea/
+*.suo
+*.sw?
