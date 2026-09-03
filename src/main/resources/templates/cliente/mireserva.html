@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi reserva - Restaurante</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div th:replace="~{fragments/layout :: navbar('mireserva')}"></div>
+
+<div class="container container-narrow">
+
+    <div class="page-header">
+        <div class="eyebrow">Tu reserva</div>
+        <h2>Mi reserva</h2>
+    </div>
+
+    <div th:if="${reserva == null}" class="empty-state">
+        <div class="icon-wrap"><i class="fas fa-calendar-xmark"></i></div>
+        <h5>No tienes ninguna reserva activa</h5>
+        <p>Elige una mesa disponible y arma tu pedido en un par de clics.</p>
+        <a th:href="@{/cliente/mesas}" class="btn-explore">Reservar una mesa</a>
+    </div>
+
+    <div th:if="${reserva != null}" class="reserva-card">
+        <div class="rc-header">
+            <div>
+                <div class="eyebrow">Reserva confirmada</div>
+                <h3>Mesa <span th:text="${reserva.mesa.numero}"></span></h3>
+            </div>
+            <span class="badge-pill"
+                  th:classappend="${#strings.toLowerCase(reserva.estado.name())}"
+                  th:text="${reserva.estado}"></span>
+        </div>
+
+        <div class="rc-body">
+            <div class="rc-meta">
+                <div class="item">
+                    <div class="lbl">Fecha y hora</div>
+                    <div class="val" th:text="${#temporals.format(reserva.fechaHora, 'dd/MM/yyyy HH:mm')}"></div>
+                </div>
+                <div class="item">
+                    <div class="lbl">Capacidad</div>
+                    <div class="val"><span th:text="${reserva.mesa.capacidad}"></span> personas</div>
+                </div>
+                <div class="item" th:if="${reserva.comensales != null}">
+                    <div class="lbl">Comensales</div>
+                    <div class="val"><span th:text="${reserva.comensales}"></span> personas</div>
+                </div>
+                <div class="item" th:if="${reserva.ocasionEspecial != null and reserva.ocasionEspecial != 'Ninguna'}">
+                    <div class="lbl">Ocasión</div>
+                    <div class="val" th:text="${reserva.ocasionEspecial}"></div>
+                </div>
+            </div>
+            <div class="mb-3" th:if="${reserva.restricciones != null and !#strings.isEmpty(reserva.restricciones)}">
+                <div class="lbl" style="color: var(--muted); text-transform: uppercase; font-size: .72rem; letter-spacing: 1px; margin-bottom:4px;">Restricciones</div>
+                <div style="font-size:0.88rem;" th:text="${reserva.restricciones}"></div>
+            </div>
+            <div class="mb-3" th:if="${reserva.notasEspeciales != null and !#strings.isEmpty(reserva.notasEspeciales)}">
+                <div class="lbl" style="color: var(--muted); text-transform: uppercase; font-size: .72rem; letter-spacing: 1px; margin-bottom:4px;">Notas</div>
+                <div style="font-size:0.88rem;" th:text="${reserva.notasEspeciales}"></div>
+            </div>
+
+            <div class="lbl mb-2" style="color: var(--muted); text-transform: uppercase; font-size: .72rem; letter-spacing: 1px;">Pedido</div>
+            <div class="rc-pedido-line" th:each="d : ${reserva.detalles}">
+                <span>
+                    <span class="cat d-block" th:text="${d.plato.categoria}"></span>
+                    <span th:text="${d.plato.nombre}"></span>
+                </span>
+                <span class="fw-semibold">S/ <span th:text="${d.plato.precio}"></span></span>
+            </div>
+
+            <div class="rc-total">
+                <span>Total</span>
+                <span style="color: var(--accent)">S/ <span th:text="${#aggregates.sum(reserva.detalles.![plato.precio])}"></span></span>
+            </div>
+
+            <form th:action="@{/cliente/mireserva/cancelar/{id}(id=${reserva.id})}" method="post"
+                  onsubmit="return confirm('¿Seguro que deseas cancelar tu reserva?');">
+                <button type="submit" class="btn-cancelar-reserva"><i class="fas fa-ban me-1"></i> Cancelar reserva</button>
+            </form>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>

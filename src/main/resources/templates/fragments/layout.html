@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head><meta charset="UTF-8"></head>
+<body>
+<nav th:fragment="navbar(activo)" class="navbar navbar-expand navbar-restaurante px-3 mb-4">
+    <a class="navbar-brand" th:href="@{/cliente/inicio}" sec:authorize="hasRole('CLIENTE')">
+        <span class="brand-badge"><i class="fas fa-utensils"></i></span>
+        Restaurante
+    </a>
+    <a class="navbar-brand" href="#" sec:authorize="hasRole('ADMIN')">
+        <span class="brand-badge"><i class="fas fa-utensils"></i></span>
+        Restaurante
+    </a>
+    <div class="navbar-nav">
+        <a class="nav-link" th:classappend="${activo == 'inicio'} ? 'fw-bold' : ''" th:href="@{/cliente/inicio}" sec:authorize="hasRole('CLIENTE')">Inicio</a>
+        <a class="nav-link" th:classappend="${activo == 'mesas'} ? 'fw-bold' : ''" th:href="@{/cliente/mesas}" sec:authorize="hasRole('CLIENTE')">Mesas</a>
+        <a class="nav-link" th:classappend="${activo == 'mireserva'} ? 'fw-bold' : ''" th:href="@{/cliente/mireserva}" sec:authorize="hasRole('CLIENTE')">Mi reserva</a>
+        <a class="nav-link" th:classappend="${activo == 'perfil'} ? 'fw-bold' : ''" th:href="@{/cliente/perfil}" sec:authorize="hasRole('CLIENTE')">Mi perfil</a>
+
+        <a class="nav-link" th:classappend="${activo == 'dashboard'} ? 'fw-bold' : ''" th:href="@{/admin/dashboard}" sec:authorize="hasRole('ADMIN')">Panel</a>
+        <a class="nav-link" th:classappend="${activo == 'mesas'} ? 'fw-bold' : ''" th:href="@{/admin/mesas}" sec:authorize="hasRole('ADMIN')">Mesas</a>
+        <a class="nav-link" th:classappend="${activo == 'platos'} ? 'fw-bold' : ''" th:href="@{/admin/platos}" sec:authorize="hasRole('ADMIN')">Carta</a>
+        <a class="nav-link" th:classappend="${activo == 'reservas'} ? 'fw-bold' : ''" th:href="@{/admin/reservas}" sec:authorize="hasRole('ADMIN')">Reservas</a>
+    </div>
+    <form th:action="@{/logout}" method="post" class="ms-auto">
+        <button class="btn-logout" type="submit"><i class="fas fa-arrow-right-from-bracket me-1"></i> Cerrar sesión</button>
+    </form>
+</nav>
+</body>
+</html>

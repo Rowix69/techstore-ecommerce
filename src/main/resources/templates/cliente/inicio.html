@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inicio - Restaurante</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div th:replace="~{fragments/layout :: navbar('inicio')}"></div>
+
+<div class="container container-narrow pb-4">
+
+    <!-- HERO -->
+    <div class="home-hero">
+        <div class="home-hero-content">
+            <div class="home-eyebrow">Bienvenido a</div>
+            <h1 class="home-title">El arte de la<br>buena mesa</h1>
+            <p class="home-subtitle">Cocina de autor con producto peruano de temporada e ingredientes de primera calidad.</p>
+            <div class="home-hero-actions">
+                <a th:href="@{/cliente/mesas}" class="btn-hero-primary"><i class="fas fa-calendar-check"></i> Reservar mesa</a>
+                <a href="#carta" class="btn-hero-secondary"><i class="fas fa-utensils"></i> Ver carta</a>
+            </div>
+        </div>
+        <div class="home-hero-badge">
+            <span class="num"><i class="fas fa-star"></i></span>
+            <span class="lbl">Cocina&nbsp;de&nbsp;autor</span>
+        </div>
+    </div>
+
+    <!-- FEATURE STRIP -->
+    <div class="feature-strip">
+        <div class="feature-item">
+            <div class="icon"><i class="fas fa-champagne-glasses"></i></div>
+            <div>
+                <h6>Ambiente único</h6>
+                <p>Diseño íntimo para experiencias memorables</p>
+            </div>
+        </div>
+        <div class="feature-item">
+            <div class="icon"><i class="fas fa-seedling"></i></div>
+            <div>
+                <h6>Producto local</h6>
+                <p>Temporada y km0 en cada plato de la carta</p>
+            </div>
+        </div>
+        <div class="feature-item">
+            <div class="icon"><i class="fas fa-wine-glass"></i></div>
+            <div>
+                <h6>Bodega curada</h6>
+                <p>Selección de bebidas para acompañar tu mesa</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- CARTA DE TEMPORADA -->
+    <div id="carta">
+        <div class="section-title-block">
+            <div class="eyebrow">Nuestra propuesta</div>
+            <h2>Carta de temporada</h2>
+        </div>
+
+        <div class="menu-group-title">Principales</div>
+        <div class="row g-3">
+            <div class="col-md-6" th:each="plato : ${principales}">
+                <div class="menu-preview-card">
+                    <div>
+                        <div class="dish-name" th:text="${plato.nombre}"></div>
+                        <p class="dish-desc" th:text="${plato.descripcion}"></p>
+                    </div>
+                    <div class="dish-price">S/ <span th:text="${plato.precio}"></span></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="menu-group-title">Postres</div>
+        <div class="row g-3">
+            <div class="col-md-6" th:each="plato : ${postres}">
+                <div class="menu-preview-card">
+                    <div>
+                        <div class="dish-name" th:text="${plato.nombre}"></div>
+                        <p class="dish-desc" th:text="${plato.descripcion}"></p>
+                    </div>
+                    <div class="dish-price">S/ <span th:text="${plato.precio}"></span></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="menu-group-title">Bebidas</div>
+        <div class="row g-3">
+            <div class="col-md-6" th:each="plato : ${bebidas}">
+                <div class="menu-preview-card">
+                    <div>
+                        <div class="dish-name" th:text="${plato.nombre}"></div>
+                        <p class="dish-desc" th:text="${plato.descripcion}"></p>
+                    </div>
+                    <div class="dish-price">S/ <span th:text="${plato.precio}"></span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CTA -->
+    <div class="cta-band">
+        <div>
+            <h4>¿Listos para la experiencia?</h4>
+            <p>Disponibilidad limitada &mdash; reserva con antelación</p>
+        </div>
+        <a th:href="@{/cliente/mesas}" class="btn-hero-primary">Reservar ahora</a>
+    </div>
+
+</div>
+</body>
+</html>
