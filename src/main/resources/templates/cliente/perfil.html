@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi perfil - Restaurante</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div th:replace="~{fragments/layout :: navbar('perfil')}"></div>
+
+<div class="container container-narrow">
+
+    <div class="page-header">
+        <div class="eyebrow">Cuenta</div>
+        <h2>Mi perfil</h2>
+    </div>
+
+    <div th:if="${guardado}" class="alert alert-success rounded-3">Tus datos se guardaron correctamente.</div>
+
+    <div class="profile-card">
+        <div class="profile-head">
+            <div class="profile-avatar" th:text="${#strings.substring(usuario.nombre, 0, 1)}"></div>
+            <div>
+                <h3 th:text="${usuario.nombre}"></h3>
+                <div class="sub">Información personal</div>
+            </div>
+        </div>
+
+        <form th:action="@{/cliente/perfil}" method="post">
+            <div class="row g-3">
+                <div class="col-md-6 profile-field">
+                    <label for="nombre">Nombre</label>
+                    <input type="text" class="form-control" id="nombre" name="nombre"
+                           th:value="${usuario.nombre}" required>
+                </div>
+                <div class="col-md-6 profile-field">
+                    <label for="dni">DNI</label>
+                    <input type="text" class="form-control" id="dni" th:value="${usuario.dni}" disabled>
+                </div>
+                <div class="col-md-6 profile-field">
+                    <label for="telefono">Teléfono</label>
+                    <input type="tel" class="form-control" id="telefono" name="telefono"
+                           th:value="${usuario.telefono}" placeholder="+51 999 999 999">
+                </div>
+            </div>
+
+            <button type="submit" class="btn-guardar-perfil mt-4"><i class="fas fa-check me-1"></i> Guardar cambios</button>
+        </form>
+    </div>
+
+</div>
+</body>
+</html>

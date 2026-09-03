@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Reservas</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div th:replace="~{fragments/layout :: navbar('reservas')}"></div>
+
+<div class="container">
+    <h3>Todas las reservas</h3>
+
+    <table class="table table-bordered bg-white align-middle">
+        <thead>
+        <tr><th>Cliente</th><th>Mesa</th><th>Fecha</th><th>Estado</th><th>Pedido</th><th>Acciones</th></tr>
+        </thead>
+        <tbody>
+        <tr th:each="r : ${reservas}">
+            <td th:text="${r.cliente.nombre} + ' (' + ${r.cliente.dni} + ')'"></td>
+            <td th:text="${r.mesa.numero}"></td>
+            <td th:text="${#temporals.format(r.fechaHora, 'dd/MM/yyyy HH:mm')}"></td>
+            <td th:text="${r.estado}"></td>
+            <td>
+                <span th:each="d, iter : ${r.detalles}">
+                    <span th:text="${d.plato.nombre}"></span><span th:if="${!iter.last}">, </span>
+                </span>
+            </td>
+            <td>
+                <div th:if="${r.estado.name() != 'CANCELADA'}" class="d-flex gap-1">
+                    <form th:action="@{/admin/reservas/mover/{id}(id=${r.id})}" method="post" class="d-flex gap-1">
+                        <select name="nuevaMesaId" class="form-select form-select-sm">
+                            <option th:each="m : ${mesasLibres}" th:value="${m.id}" th:text="'Mesa ' + ${m.numero}"></option>
+                        </select>
+                        <button class="btn btn-sm btn-outline-primary">Mover</button>
+                    </form>
+                    <form th:action="@{/admin/reservas/cancelar/{id}(id=${r.id})}" method="post">
+                        <button class="btn btn-sm btn-outline-danger" onclick="return confirm('¿Cancelar esta reserva?');">Cancelar</button>
+                    </form>
+                </div>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>

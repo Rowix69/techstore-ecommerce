@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Panel Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div th:replace="~{fragments/layout :: navbar('dashboard')}"></div>
+
+<div class="container">
+    <h3>Bienvenido, <span th:text="${admin.nombre}"></span></h3>
+    <div class="row g-3 mt-3">
+        <div class="col-md-4">
+            <div class="card p-4 text-center">
+                <h2 th:text="${totalMesas}"></h2>
+                <p>Mesas registradas</p>
+                <a th:href="@{/admin/mesas}" class="btn btn-outline-danger btn-sm">Gestionar mesas</a>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card p-4 text-center">
+                <h2 th:text="${totalReservas}"></h2>
+                <p>Reservas totales</p>
+                <a th:href="@{/admin/reservas}" class="btn btn-outline-danger btn-sm">Ver reservas</a>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card p-4 text-center">
+                <h2>🍽️</h2>
+                <p>Carta del restaurante</p>
+                <a th:href="@{/admin/platos}" class="btn btn-outline-danger btn-sm">Gestionar carta</a>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

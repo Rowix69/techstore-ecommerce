@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mesas disponibles - Restaurante</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div th:replace="~{fragments/layout :: navbar('mesas')}"></div>
+
+<div class="container container-narrow">
+
+    <div class="hero-section">
+        <div>
+            <div class="hero-eyebrow">Reserva de mesas</div>
+            <h1 class="hero-title">Elige tu mesa</h1>
+            <p class="hero-subtitle">Selecciona la mesa perfecta para tu velada</p>
+        </div>
+        <div class="hero-stats">
+            <div class="hero-stat libres">
+                <span class="num" th:text="${mesas.?[estado.name() == 'LIBRE'].size()}">0</span>
+                <span class="lbl">Libres</span>
+            </div>
+            <div class="hero-stat reservadas">
+                <span class="num" th:text="${mesas.?[estado.name() == 'RESERVADA'].size()}">0</span>
+                <span class="lbl">Reservadas</span>
+            </div>
+            <div class="hero-stat">
+                <span class="num" th:text="${mesas.size()}">0</span>
+                <span class="lbl">Total</span>
+            </div>
+        </div>
+    </div>
+
+    <div th:if="${reservaActiva != null}" class="alert-reserva-activa">
+        <i class="fas fa-circle-info text-warning fs-5"></i>
+        <div>
+            Ya tienes una reserva activa en la <strong>Mesa <span th:text="${reservaActiva.mesa.numero}"></span></strong>.
+            Ve a <a th:href="@{/cliente/mireserva}" class="fw-bold" style="color: var(--accent)">Mi reserva</a> si deseas cancelarla antes de reservar otra.
+        </div>
+    </div>
+
+    <div class="filter-tabs">
+        <button type="button" class="filter-tab active" data-filter="todas">Todas</button>
+        <button type="button" class="filter-tab" data-filter="LIBRE"><span class="dot" style="background:var(--green)"></span>Libres</button>
+        <button type="button" class="filter-tab" data-filter="RESERVADA"><span class="dot" style="background:var(--accent)"></span>Reservadas</button>
+    </div>
+
+    <div class="row g-3 mb-5">
+        <div class="col-6 col-md-4 col-lg-3 mesa-item" th:each="mesa : ${mesas}" th:attr="data-estado=${mesa.estado.name()}">
+            <div class="card-mesa p-3">
+                <div class="mesa-top">
+                    <span class="badge-estado" th:classappend="${mesa.estado.name() == 'LIBRE'} ? 'libre' : 'reservada'">
+                        <span class="dot"></span>
+                        <span th:text="${mesa.estado.name() == 'LIBRE'} ? 'Libre' : 'Reservada'"></span>
+                    </span>
+                </div>
+                <div class="mesa-numero">Mesa <span th:text="${mesa.numero}"></span></div>
+                <div class="mesa-cap">
+                    <i class="fas fa-user-group"></i>
+                    <span th:text="${mesa.capacidad}"></span> personas
+                </div>
+                <div class="mesa-dots">
+                    <span th:each="i : ${#numbers.sequence(1, mesa.capacidad)}"></span>
+                </div>
+
+                <button th:if="${mesa.estado.name() == 'LIBRE' and reservaActiva == null}"
+                        type="button"
+                        class="btn-reservar d-block text-center"
+                        th:attr="data-mesa-id=${mesa.id},data-mesa-numero=${mesa.numero},data-mesa-capacidad=${mesa.capacidad}"
+                        onclick="abrirWizard(this)">Reservar mesa</button>
+                <button th:unless="${mesa.estado.name() == 'LIBRE' and reservaActiva == null}"
+                        class="btn-nodisponible" disabled
+                        th:text="${mesa.estado.name() == 'LIBRE'} ? 'Ya tienes una reserva' : 'No disponible'"></button>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- ===== MODAL: asistente de reserva en 3 pasos ===== -->
+<div class="modal fade wizard-modal" id="reservaWizardModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+
+            <div class="d-flex justify-content-between align-items-start mb-3">
+                <div>
+                    <div class="wizard-eyebrow">MESA <span id="wz-mesa-numero"></span> &middot; <span id="wz-mesa-capacidad"></span> personas</div>
+                    <h4 class="mt-1 mb-0" id="wz-step-title">¿Cuándo vienen?</h4>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+
+            <div class="wizard-steps">
+                <div class="dot-step active" data-dot="1">1</div>
+                <div class="line-step"></div>
+                <div class="dot-step" data-dot="2">2</div>
+                <div class="line-step"></div>
+                <div class="dot-step" data-dot="3">3</div>
+                <span class="lbl-step" id="wz-step-label">Fecha y hora</span>
+            </div>
+
+            <!-- PASO 1: Fecha y hora -->
+            <div class="wizard-pane" data-pane="1">
+                <label class="wizard-form-label">Fecha</label>
+                <input type="date" class="form-control profile-field mb-3" id="wz-fecha" style="border-radius:10px;border:1.5px solid var(--line);padding:10px 14px;">
+
+                <label class="wizard-form-label">Hora</label>
+                <div class="time-slot-grid" id="wz-horas">
+                    <div class="time-slot" data-hora="13:00">13:00</div>
+                    <div class="time-slot" data-hora="13:30">13:30</div>
+                    <div class="time-slot" data-hora="14:00">14:00</div>
+                    <div class="time-slot" data-hora="14:30">14:30</div>
+                    <div class="time-slot" data-hora="20:00">20:00</div>
+                    <div class="time-slot" data-hora="20:30">20:30</div>
+                    <div class="time-slot" data-hora="21:00">21:00</div>
+                    <div class="time-slot" data-hora="21:30">21:30</div>
+                    <div class="time-slot" data-hora="22:00">22:00</div>
+                </div>
+
+                <label class="wizard-form-label">Comensales (máx. <span id="wz-max-cap"></span>)</label>
+                <div class="comensales-stepper">
+                    <button type="button" onclick="cambiarComensales(-1)">&minus;</button>
+                    <span class="val" id="wz-comensales-val">2</span>
+                    <span class="lbl">personas</span>
+                    <button type="button" onclick="cambiarComensales(1)">+</button>
+                </div>
+
+                <label class="wizard-form-label">Ocasión especial</label>
+                <div class="pill-option-grid" id="wz-ocasiones">
+                    <div class="pill-option selected" data-ocasion="Ninguna">Ninguna</div>
+                    <div class="pill-option" data-ocasion="Cumpleaños">Cumpleaños 🎂</div>
+                    <div class="pill-option" data-ocasion="Aniversario">Aniversario 💍</div>
+                    <div class="pill-option" data-ocasion="Reunión de negocios">Reunión de negocios 💼</div>
+                    <div class="pill-option" data-ocasion="Cena romántica">Cena romántica 🌹</div>
+                    <div class="pill-option" data-ocasion="Celebración">Celebración 🎉</div>
+                </div>
+
+                <div class="wizard-nav-btns">
+                    <button type="button" class="btn-wizard-next" style="flex:1" onclick="irAPaso(2)">Continuar &rarr;</button>
+                </div>
+            </div>
+
+            <!-- PASO 2: Preferencias -->
+            <div class="wizard-pane d-none" data-pane="2">
+                <label class="wizard-form-label mb-1">Pre-selecciona platos (opcional)</label>
+                <p class="section-sub" style="margin-top:-6px;">Elige lo que te apetece para que la cocina esté lista</p>
+
+                <div id="wz-platos">
+                    <div class="preselect-row" th:each="plato : ${principales}" th:attr="data-nombre=${plato.nombre}" onclick="togglePreselect(this)">
+                        <div>
+                            <div class="name" th:text="${plato.nombre}"></div>
+                            <div class="desc" th:text="${plato.descripcion}"></div>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <span class="price">S/ <span th:text="${plato.precio}"></span></span>
+                            <span class="chk"><i class="fas fa-check"></i></span>
+                        </div>
+                    </div>
+                    <div class="preselect-row" th:each="plato : ${postres}" th:attr="data-nombre=${plato.nombre}" onclick="togglePreselect(this)">
+                        <div>
+                            <div class="name" th:text="${plato.nombre}"></div>
+                            <div class="desc" th:text="${plato.descripcion}"></div>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <span class="price">S/ <span th:text="${plato.precio}"></span></span>
+                            <span class="chk"><i class="fas fa-check"></i></span>
+                        </div>
+                    </div>
+                    <div class="preselect-row" th:each="plato : ${bebidas}" th:attr="data-nombre=${plato.nombre}" onclick="togglePreselect(this)">
+                        <div>
+                            <div class="name" th:text="${plato.nombre}"></div>
+                            <div class="desc" th:text="${plato.descripcion}"></div>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <span class="price">S/ <span th:text="${plato.precio}"></span></span>
+                            <span class="chk"><i class="fas fa-check"></i></span>
+                        </div>
+                    </div>
+                </div>
+
+                <label class="wizard-form-label mt-3">Restricciones o alergias</label>
+                <div class="allergy-pill-grid" id="wz-restricciones">
+                    <div class="allergy-pill" data-restriccion="Sin gluten">Sin gluten</div>
+                    <div class="allergy-pill" data-restriccion="Sin lactosa">Sin lactosa</div>
+                    <div class="allergy-pill" data-restriccion="Vegetariano">Vegetariano</div>
+                    <div class="allergy-pill" data-restriccion="Vegano">Vegano</div>
+                    <div class="allergy-pill" data-restriccion="Sin frutos secos">Sin frutos secos</div>
+                    <div class="allergy-pill" data-restriccion="Sin marisco">Sin marisco</div>
+                </div>
+
+                <label class="wizard-form-label">Otras solicitudes especiales</label>
+                <textarea class="form-control profile-field mb-3" id="wz-notas" rows="2" placeholder="Otras solicitudes especiales..." style="border-radius:10px;border:1.5px solid var(--line);padding:10px 14px;"></textarea>
+
+                <div class="wizard-nav-btns">
+                    <button type="button" class="btn-wizard-back" onclick="irAPaso(1)">Atrás</button>
+                    <button type="button" class="btn-wizard-next" onclick="irAPaso(3)">Continuar &rarr;</button>
+                </div>
+            </div>
+
+            <!-- PASO 3: Confirmación -->
+            <div class="wizard-pane d-none" data-pane="3">
+                <div class="confirm-summary">
+                    <div class="confirm-summary-ok"><i class="fas fa-circle-check"></i> Reserva lista para confirmar</div>
+                    <div class="confirm-summary-row"><span class="lbl">Mesa</span><span class="val" id="wz-resumen-mesa"></span></div>
+                    <div class="confirm-summary-row"><span class="lbl">Fecha</span><span class="val" id="wz-resumen-fecha"></span></div>
+                    <div class="confirm-summary-row"><span class="lbl">Hora</span><span class="val" id="wz-resumen-hora"></span></div>
+                    <div class="confirm-summary-row"><span class="lbl">Comensales</span><span class="val" id="wz-resumen-comensales"></span></div>
+                </div>
+                <p class="confirm-note">Recibirás confirmación por email. Puedes cancelar hasta 2h antes.</p>
+
+                <div th:if="${error}" class="alert alert-danger rounded-3" th:text="${error}"></div>
+
+                <div class="wizard-nav-btns">
+                    <button type="button" class="btn-wizard-back" onclick="irAPaso(2)">Atrás</button>
+                    <button type="button" class="btn-wizard-confirm" onclick="confirmarWizard()">Confirmar reserva</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<form id="wz-form" th:action="@{/cliente/reservar/iniciar}" method="post" class="d-none">
+    <input type="hidden" name="mesaId" id="wz-input-mesaId">
+    <input type="hidden" name="fecha" id="wz-input-fecha">
+    <input type="hidden" name="hora" id="wz-input-hora">
+    <input type="hidden" name="comensales" id="wz-input-comensales">
+    <input type="hidden" name="ocasion" id="wz-input-ocasion">
+    <input type="hidden" name="notas" id="wz-input-notas">
+    <div id="wz-input-restricciones-holder"></div>
+</form>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    document.querySelectorAll('.filter-tab').forEach(function (tab) {
+        tab.addEventListener('click', function () {
+            document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            const filtro = tab.getAttribute('data-filter');
+            document.querySelectorAll('.mesa-item').forEach(function (item) {
+                if (filtro === 'todas' || item.getAttribute('data-estado') === filtro) {
+                    item.style.display = '';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        });
+    });
+
+    // ===== Asistente de reserva en 3 pasos =====
+    let wzMesaId = null, wzMesaNumero = null, wzMesaCapacidad = 2;
+    let wzComensales = 2, wzHora = null, wzOcasion = 'Ninguna';
+    let wzPlatosPreferidos = [], wzRestricciones = [];
+    const wzModal = new bootstrap.Modal(document.getElementById('reservaWizardModal'));
+    const wzStepTitles = { 1: '¿Cuándo vienen?', 2: 'Preferencias', 3: 'Confirmar reserva' };
+    const wzStepLabels = { 1: 'Fecha y hora', 2: 'Preferencias', 3: 'Confirmación' };
+
+    function abrirWizard(btn) {
+        wzMesaId = btn.getAttribute('data-mesa-id');
+        wzMesaNumero = btn.getAttribute('data-mesa-numero');
+        wzMesaCapacidad = parseInt(btn.getAttribute('data-mesa-capacidad'), 10);
+
+        document.getElementById('wz-mesa-numero').textContent = wzMesaNumero;
+        document.getElementById('wz-mesa-capacidad').textContent = wzMesaCapacidad;
+        document.getElementById('wz-max-cap').textContent = wzMesaCapacidad;
+
+        wzComensales = Math.min(2, wzMesaCapacidad);
+        document.getElementById('wz-comensales-val').textContent = wzComensales;
+
+        const fechaInput = document.getElementById('wz-fecha');
+        const hoy = new Date().toISOString().slice(0, 10);
+        fechaInput.min = hoy;
+        fechaInput.value = hoy;
+
+        wzHora = null;
+        wzOcasion = 'Ninguna';
+        wzPlatosPreferidos = [];
+        wzRestricciones = [];
+        document.querySelectorAll('.time-slot').forEach(el => el.classList.remove('selected'));
+        document.querySelectorAll('.pill-option').forEach(el => el.classList.remove('selected'));
+        document.querySelector('.pill-option[data-ocasion="Ninguna"]').classList.add('selected');
+        document.querySelectorAll('.preselect-row').forEach(el => el.classList.remove('selected'));
+        document.querySelectorAll('.allergy-pill').forEach(el => el.classList.remove('selected'));
+        document.getElementById('wz-notas').value = '';
+
+        irAPaso(1);
+        wzModal.show();
+    }
+
+    document.querySelectorAll('.time-slot').forEach(function (slot) {
+        slot.addEventListener('click', function () {
+            document.querySelectorAll('.time-slot').forEach(s => s.classList.remove('selected'));
+            slot.classList.add('selected');
+            wzHora = slot.getAttribute('data-hora');
+        });
+    });
+
+    document.querySelectorAll('.pill-option').forEach(function (pill) {
+        pill.addEventListener('click', function () {
+            document.querySelectorAll('.pill-option').forEach(p => p.classList.remove('selected'));
+            pill.classList.add('selected');
+            wzOcasion = pill.getAttribute('data-ocasion');
+        });
+    });
+
+    document.querySelectorAll('.allergy-pill').forEach(function (pill) {
+        pill.addEventListener('click', function () {
+            pill.classList.toggle('selected');
+            const val = pill.getAttribute('data-restriccion');
+            if (pill.classList.contains('selected')) {
+                wzRestricciones.push(val);
+            } else {
+                wzRestricciones = wzRestricciones.filter(r => r !== val);
+            }
+        });
+    });
+
+    function togglePreselect(row) {
+        row.classList.toggle('selected');
+        const nombre = row.getAttribute('data-nombre');
+        if (row.classList.contains('selected')) {
+            wzPlatosPreferidos.push(nombre);
+        } else {
+            wzPlatosPreferidos = wzPlatosPreferidos.filter(n => n !== nombre);
+        }
+    }
+
+    function cambiarComensales(delta) {
+        const nuevo = wzComensales + delta;
+        if (nuevo >= 1 && nuevo <= wzMesaCapacidad) {
+            wzComensales = nuevo;
+            document.getElementById('wz-comensales-val').textContent = wzComensales;
+        }
+    }
+
+    function irAPaso(paso) {
+        if (paso === 2 && (!document.getElementById('wz-fecha').value || !wzHora)) {
+            alert('Elige la fecha y la hora para continuar.');
+            return;
+        }
+        document.querySelectorAll('.wizard-pane').forEach(p => p.classList.add('d-none'));
+        document.querySelector('.wizard-pane[data-pane="' + paso + '"]').classList.remove('d-none');
+
+        document.querySelectorAll('.dot-step').forEach(function (dot) {
+            const n = parseInt(dot.getAttribute('data-dot'), 10);
+            dot.classList.remove('active', 'done');
+            if (n < paso) dot.classList.add('done');
+            else if (n === paso) dot.classList.add('active');
+        });
+
+        document.getElementById('wz-step-title').textContent = wzStepTitles[paso];
+        document.getElementById('wz-step-label').textContent = wzStepLabels[paso];
+
+        if (paso === 3) {
+            document.getElementById('wz-resumen-mesa').textContent = 'Mesa ' + wzMesaNumero;
+            const fecha = document.getElementById('wz-fecha').value;
+            const [y, m, d] = fecha.split('-');
+            document.getElementById('wz-resumen-fecha').textContent = d + '/' + m + '/' + y;
+            document.getElementById('wz-resumen-hora').textContent = wzHora;
+            document.getElementById('wz-resumen-comensales').textContent = wzComensales + ' personas';
+        }
+    }
+
+    function confirmarWizard() {
+        document.getElementById('wz-input-mesaId').value = wzMesaId;
+        document.getElementById('wz-input-fecha').value = document.getElementById('wz-fecha').value;
+        document.getElementById('wz-input-hora').value = wzHora;
+        document.getElementById('wz-input-comensales').value = wzComensales;
+        document.getElementById('wz-input-ocasion').value = wzOcasion;
+
+        let notas = document.getElementById('wz-notas').value.trim();
+        if (wzPlatosPreferidos.length > 0) {
+            const pref = 'Preferencias de carta: ' + wzPlatosPreferidos.join(', ') + '.';
+            notas = notas ? (pref + ' ' + notas) : pref;
+        }
+        document.getElementById('wz-input-notas').value = notas;
+
+        const holder = document.getElementById('wz-input-restricciones-holder');
+        holder.innerHTML = '';
+        wzRestricciones.forEach(function (r) {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'restricciones';
+            input.value = r;
+            holder.appendChild(input);
+        });
+
+        document.getElementById('wz-form').submit();
+    }
+</script>
+</body>
+</html>
