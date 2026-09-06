@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mesas disponibles - Restaurante</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Inter:wght@400;500;600;700;800&display=swap');
+
+        :root {
+            --bg: #f6f1e9;
+            --dark: #241812;
+            --dark-2: #2f2019;
+            --accent: #c0392b;
+            --accent-dark: #a5281a;
+            --accent-soft: rgba(192, 57, 43, 0.12);
+            --gold: #c98a4b;
+            --ink: #2b211c;
+            --muted: #8a7b6f;
+            --line: #e7ddcf;
+            --green: #3f8b52;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            background-color: var(--bg);
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+            color: var(--ink);
+        }
+
+        h1, h2, h3, h4, h5, .font-serif {
+            font-family: 'Playfair Display', 'Segoe UI', serif;
+        }
+
+        a { text-decoration: none; }
+
+        /* ===== NAVBAR ===== */
+        .navbar-restaurante {
+            background-color: var(--dark);
+            padding: 14px 28px;
+            box-shadow: 0 4px 18px rgba(0,0,0,0.15);
+        }
+
+        .navbar-restaurante .navbar-brand {
+            color: #fff !important;
+            font-family: 'Playfair Display', serif;
+            font-weight: 700;
+            font-size: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .navbar-restaurante .brand-badge {
+            width: 34px;
+            height: 34px;
+            border-radius: 9px;
+            background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            color: #fff;
+        }
+
+        .navbar-restaurante .navbar-nav {
+            gap: 6px;
+        }
+
+        .navbar-restaurante .nav-link {
+            color: rgba(255,255,255,0.65) !important;
+            font-weight: 600;
+            font-size: 0.9rem;
+            padding: 8px 14px !important;
+            border-radius: 999px;
+            transition: all .2s;
+        }
+
+        .navbar-restaurante .nav-link:hover {
+            color: #fff !important;
+            background: rgba(255,255,255,0.08);
+        }
+
+        .navbar-restaurante .nav-link.fw-bold {
+            color: #fff !important;
+            background: rgba(255,255,255,0.12);
+        }
+
+        .nav-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 16px;
+            height: 16px;
+            padding: 0 4px;
+            border-radius: 999px;
+            background: var(--gold);
+            color: var(--dark);
+            font-size: 0.68rem;
+            font-weight: 800;
+            margin-left: 4px;
+            vertical-align: 2px;
+        }
+
+        .navbar-restaurante .btn-logout {
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.25);
+            color: rgba(255,255,255,0.85);
+            border-radius: 999px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            padding: 7px 16px;
+            transition: all .2s;
+        }
+
+        .navbar-restaurante .btn-logout:hover {
+            background: rgba(255,255,255,0.12);
+            color: #fff;
+        }
+
+        /* ===== HERO ===== */
+        .hero-section {
+            position: relative;
+            border-radius: 22px;
+            overflow: hidden;
+            min-height: 220px;
+            display: flex;
+            align-items: center;
+            padding: 40px;
+            margin-bottom: 26px;
+            background: linear-gradient(120deg, rgba(36,24,18,0.92), rgba(36,24,18,0.55)),
+                        url('https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1400&q=80') center/cover;
+            color: #fff;
+        }
+
+        .hero-eyebrow {
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--gold);
+            margin-bottom: 8px;
+        }
+
+        .hero-title {
+            font-size: 2.4rem;
+            font-weight: 800;
+            margin-bottom: 6px;
+        }
+
+        .hero-subtitle {
+            color: rgba(255,255,255,0.75);
+            font-size: 0.95rem;
+            margin: 0;
+        }
+
+        .hero-stats {
+            display: flex;
+            gap: 14px;
+            margin-left: auto;
+        }
+
+        .hero-stat {
+            background: rgba(0,0,0,0.28);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 14px;
+            padding: 12px 20px;
+            text-align: center;
+            min-width: 96px;
+            backdrop-filter: blur(4px);
+        }
+
+        .hero-stat .num {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.6rem;
+            font-weight: 700;
+            display: block;
+        }
+
+        .hero-stat .lbl {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: rgba(255,255,255,0.7);
+        }
+
+        .hero-stat.libres .num { color: #7fd18f; }
+        .hero-stat.reservadas .num { color: var(--gold); }
+
+        @media (max-width: 767px) {
+            .hero-section { flex-direction: column; align-items: flex-start; }
+            .hero-stats { margin-left: 0; margin-top: 20px; width: 100%; }
+            .hero-stat { flex: 1; }
+        }
+
+        /* ===== FILTER TABS ===== */
+        .filter-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 22px;
+        }
+
+        .filter-tab {
+            border: 1px solid var(--line);
+            background: #fff;
+            color: var(--muted);
+            font-weight: 600;
+            font-size: 0.85rem;
+            padding: 8px 18px;
+            border-radius: 999px;
+            cursor: pointer;
+            transition: all .2s;
+        }
+
+        .filter-tab .dot {
+            width: 7px; height: 7px; border-radius: 50%;
+            display: inline-block; margin-right: 6px;
+        }
+
+        .filter-tab.active {
+            background: var(--dark);
+            border-color: var(--dark);
+            color: #fff;
+        }
+
+        /* ===== MESA CARDS ===== */
+        .card-mesa {
+            border: 1px solid var(--line);
+            border-radius: 18px;
+            background: #fff;
+            transition: transform .18s, box-shadow .18s;
+            height: 100%;
+        }
+
+        .card-mesa:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 14px 28px rgba(36,24,18,0.1);
+        }
+
+        .mesa-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .mesa-numero {
+            font-family: 'Playfair Display', serif;
+            font-weight: 700;
+            font-size: 1.4rem;
+            margin: 4px 0 6px;
+        }
+
+        .mesa-cap {
+            color: var(--muted);
+            font-size: 0.88rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 10px;
+        }
+
+        .mesa-dots { display: flex; gap: 4px; margin-bottom: 16px; }
+        .mesa-dots span {
+            width: 9px; height: 9px; border-radius: 50%;
+            background: var(--gold);
+            opacity: 0.85;
+        }
+
+        .badge-estado {
+            font-size: 0.72rem;
+            font-weight: 700;
+            padding: 5px 12px;
+            border-radius: 999px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .badge-estado.libre { background: rgba(63,139,82,0.12); color: var(--green); }
+        .badge-estado.reservada { background: rgba(192,57,43,0.12); color: var(--accent); }
+
+        .badge-estado .dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+
+        .btn-reservar {
+            width: 100%;
+            background: var(--dark);
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            padding: 10px;
+            font-weight: 700;
+            font-size: 0.88rem;
+            transition: all .2s;
+        }
+
+        .btn-reservar:hover {
+            background: var(--accent);
+            color: #fff;
+        }
+
+        .btn-nodisponible {
+            width: 100%;
+            background: #f0e9dd;
+            color: var(--muted);
+            border: none;
+            border-radius: 12px;
+            padding: 10px;
+            font-weight: 700;
+            font-size: 0.88rem;
+        }
+
+        .alert-reserva-activa {
+            background: #fff;
+            border: 1px solid var(--line);
+            border-left: 4px solid var(--gold);
+            border-radius: 14px;
+            padding: 16px 20px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .container-narrow { max-width: 1140px; margin: 0 auto; padding: 0 16px; }
+
+        /* ===== WIZARD DE RESERVA (modal 3 pasos) ===== */
+        .wz-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(20,13,9,0.55);
+            z-index: 1050;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .wz-overlay.wz-open { display: flex; }
+
+        .wz-dialog {
+            width: 100%;
+            max-width: 440px;
+            max-height: 90vh;
+        }
+
+        .wz-content {
+            border-radius: 22px;
+            border: none;
+            overflow: hidden;
+            background: var(--bg);
+            display: flex;
+            flex-direction: column;
+            max-height: 90vh;
+        }
+
+        .wz-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            padding: 22px 26px 0;
+        }
+
+        .wz-eyebrow {
+            color: var(--accent);
+            font-size: 0.72rem;
+            font-weight: 800;
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+        }
+
+        .wz-title { font-family: 'Playfair Display', serif; font-weight: 700; margin: 0; }
+
+        .wz-close {
+            background: var(--line);
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            font-size: 1.1rem;
+            line-height: 1;
+            color: var(--ink);
+        }
+
+        .wz-steps {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 18px 26px;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .wz-dot {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--line);
+            color: var(--muted);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 800;
+            flex-shrink: 0;
+        }
+        .wz-dot.active { background: var(--dark); color: #fff; }
+        .wz-line { width: 26px; height: 1px; background: var(--line); }
+        .wz-step-label { color: var(--muted); font-size: 0.82rem; margin-left: 10px; }
+
+        .wz-body { padding: 20px 26px; max-height: 60vh; overflow-y: auto; }
+
+        .wz-label {
+            display: block;
+            font-weight: 700;
+            font-size: 0.85rem;
+            margin-bottom: 8px;
+        }
+
+        .wz-hint { color: var(--muted); font-size: 0.8rem; margin-top: -4px; margin-bottom: 12px; }
+
+        .wz-input {
+            border-radius: 10px;
+            border: 1.5px solid var(--line);
+            padding: 10px 12px;
+            width: 100%;
+        }
+        .wz-input:focus { border-color: var(--gold); box-shadow: none; }
+
+        .wz-hora-grid, .wz-chip-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+        .wz-chip-grid.two-col, .wz-chip-grid.restr-grid { grid-template-columns: repeat(2, 1fr); }
+
+        .wz-chip, .wz-chip-wide {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #fff;
+            border: 1.5px solid var(--line);
+            border-radius: 12px;
+            padding: 10px 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: center;
+            transition: all .15s;
+        }
+        .wz-chip-wide { justify-content: flex-start; padding-left: 14px; }
+        .wz-chip input, .wz-chip-wide input { position: absolute; opacity: 0; pointer-events: none; }
+        .wz-chip:has(input:checked), .wz-chip-wide:has(input:checked) {
+            background: var(--dark);
+            border-color: var(--dark);
+            color: #fff;
+        }
+
+        .wz-comensales {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        .wz-count-btn {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            border: 1.5px solid var(--line);
+            background: #fff;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--ink);
+        }
+        .wz-count-val { font-family: 'Playfair Display', serif; font-weight: 700; font-size: 1.3rem; min-width: 20px; text-align: center; }
+        .wz-personas-lbl { color: var(--muted); font-size: 0.85rem; }
+
+        .wz-plato-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 4px; }
+
+        .wz-plato-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: #fff;
+            border: 1.5px solid var(--line);
+            border-radius: 12px;
+            padding: 8px 12px;
+            cursor: pointer;
+            transition: all .15s;
+        }
+        .wz-plato-row input { position: absolute; opacity: 0; pointer-events: none; }
+        .wz-plato-row:has(input:checked) { border-color: var(--gold); background: var(--accent-soft); }
+
+        .wp-thumb {
+            width: 38px;
+            height: 38px;
+            border-radius: 8px;
+            background: var(--bg);
+            color: var(--gold);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 0.85rem;
+        }
+        .wp-name { display: block; font-weight: 700; font-size: 0.86rem; }
+        .wp-desc { display: block; color: var(--muted); font-size: 0.75rem; }
+        .wp-price { color: var(--gold); font-weight: 800; font-size: 0.85rem; white-space: nowrap; }
+        .wp-check {
+            width: 20px; height: 20px; border-radius: 50%; border: 1.5px solid var(--line);
+            display: flex; align-items: center; justify-content: center; font-size: 0.6rem; color: transparent; flex-shrink: 0;
+        }
+        .wz-plato-row:has(input:checked) .wp-check { background: var(--gold); border-color: var(--gold); color: #fff; }
+
+        .wz-confirm-banner {
+            background: rgba(46,139,87,0.12);
+            color: #2e8b57;
+            font-weight: 700;
+            border-radius: 12px;
+            padding: 12px 16px;
+            margin-bottom: 18px;
+            font-size: 0.9rem;
+        }
+
+        .wz-summary { background: #fff; border-radius: 14px; padding: 4px 18px; margin-bottom: 16px; }
+        .wz-sum-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--line);
+            font-size: 0.9rem;
+        }
+        .wz-sum-row:last-child { border-bottom: none; }
+        .wz-sum-row span:first-child { color: var(--muted); }
+        .wz-sum-row span:last-child { font-weight: 700; }
+
+        .wz-note { color: var(--muted); font-size: 0.8rem; }
+
+        .wz-error {
+            background: rgba(192,57,43,0.1);
+            color: var(--accent);
+            border-radius: 10px;
+            padding: 10px 14px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-top: 12px;
+        }
+
+        .wz-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 18px 26px 26px;
+        }
+
+        .wz-btn-back {
+            background: transparent;
+            border: none;
+            color: var(--muted);
+            font-weight: 700;
+        }
+
+        .wz-btn-next, .wz-btn-confirm {
+            background: var(--dark);
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            padding: 12px 28px;
+            font-weight: 700;
+            margin-left: auto;
+        }
+        .wz-btn-next:hover, .wz-btn-confirm:hover { background: var(--accent); }
+
+        @media (max-width: 480px) {
+            .wz-hora-grid, .wz-chip-grid.two-col, .wz-chip-grid.restr-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
+</head>
+<body>
+<div th:replace="~{fragments/layout :: navbar('mesas')}"></div>
+
+<div class="container container-narrow">
+
+    <div class="hero-section">
+        <div>
+            <div class="hero-eyebrow">Reserva de mesas</div>
+            <h1 class="hero-title">Elige tu mesa</h1>
+            <p class="hero-subtitle">Selecciona la mesa perfecta para tu velada</p>
+        </div>
+        <div class="hero-stats">
+            <div class="hero-stat libres">
+                <span class="num" th:text="${mesas.?[estado.name() == 'LIBRE'].size()}">0</span>
+                <span class="lbl">Libres</span>
+            </div>
+            <div class="hero-stat reservadas">
+                <span class="num" th:text="${mesas.?[estado.name() == 'RESERVADA'].size()}">0</span>
+                <span class="lbl">Reservadas</span>
+            </div>
+            <div class="hero-stat">
+                <span class="num" th:text="${mesas.size()}">0</span>
+                <span class="lbl">Total</span>
+            </div>
+        </div>
+    </div>
+
+    <div th:if="${error}" class="alert alert-danger rounded-3" th:text="${error}"></div>
+
+    <div th:if="${reservaActiva != null}" class="alert-reserva-activa">
+        <i class="fas fa-circle-info text-warning fs-5"></i>
+        <div>
+            Ya tienes una reserva activa en la <strong>Mesa <span th:text="${reservaActiva.mesa.numero}"></span></strong>.
+            Ve a <a th:href="@{/cliente/mireserva}" class="fw-bold" style="color: var(--accent)">Mi reserva</a> si deseas cancelarla antes de reservar otra.
+        </div>
+    </div>
+
+    <div class="filter-tabs">
+        <button type="button" class="filter-tab active" data-filter="todas">Todas</button>
+        <button type="button" class="filter-tab" data-filter="LIBRE"><span class="dot" style="background:var(--green)"></span>Libres</button>
+        <button type="button" class="filter-tab" data-filter="RESERVADA"><span class="dot" style="background:var(--accent)"></span>Reservadas</button>
+    </div>
+
+    <div class="row g-3 mb-5">
+        <div class="col-6 col-md-4 col-lg-3 mesa-item" th:each="mesa : ${mesas}" th:attr="data-estado=${mesa.estado.name()}">
+            <div class="card-mesa p-3">
+                <div class="mesa-top">
+                    <span class="badge-estado" th:classappend="${mesa.estado.name() == 'LIBRE'} ? 'libre' : 'reservada'">
+                        <span class="dot"></span>
+                        <span th:text="${mesa.estado.name() == 'LIBRE'} ? 'Libre' : 'Reservada'"></span>
+                    </span>
+                </div>
+                <div class="mesa-numero">Mesa <span th:text="${mesa.numero}"></span></div>
+                <div class="mesa-cap">
+                    <i class="fas fa-user-group"></i>
+                    <span th:text="${mesa.capacidad}"></span> personas
+                </div>
+                <div class="mesa-dots">
+                    <span th:each="i : ${#numbers.sequence(1, mesa.capacidad)}"></span>
+                </div>
+
+                <button th:if="${mesa.estado.name() == 'LIBRE' and reservaActiva == null}"
+                        type="button" class="btn-reservar d-block text-center w-100 btn-abrir-wizard"
+                        th:attr="data-mesa-id=${mesa.id},data-mesa-numero=${mesa.numero},data-mesa-zona=${mesa.zona},data-mesa-cap=${mesa.capacidad}">
+                    Reservar mesa
+                </button>
+                <button th:unless="${mesa.estado.name() == 'LIBRE' and reservaActiva == null}"
+                        class="btn-nodisponible" disabled
+                        th:text="${mesa.estado.name() == 'LIBRE'} ? 'Ya tienes una reserva' : 'No disponible'"></button>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div class="wz-overlay" id="reservaModal">
+  <div class="wz-dialog">
+    <div class="wz-content">
+      <form id="wizardForm" th:action="@{/cliente/reservar-mesa}" method="post" novalidate>
+        <input type="hidden" name="mesaId" id="wz-mesaId">
+
+        <div class="wz-header">
+          <div>
+            <div class="wz-eyebrow" id="wz-mesa-label">MESA</div>
+            <h5 class="wz-title" id="wz-step-title">¿Cuándo vienen?</h5>
+          </div>
+          <button type="button" class="wz-close" id="wz-close" aria-label="Cerrar">&times;</button>
+        </div>
+
+        <div class="wz-steps">
+          <span class="wz-dot active" data-dot="1">1</span>
+          <span class="wz-line"></span>
+          <span class="wz-dot" data-dot="2">2</span>
+          <span class="wz-line"></span>
+          <span class="wz-dot" data-dot="3">3</span>
+          <span class="wz-step-label" id="wz-step-label">Fecha y hora</span>
+        </div>
+
+        <div class="wz-body">
+
+          <div class="wz-step" data-step="1">
+            <label class="wz-label">Fecha</label>
+            <input type="date" class="form-control wz-input" name="fecha" id="wz-fecha">
+
+            <label class="wz-label mt-3">Hora</label>
+            <div class="wz-hora-grid" id="wz-hora-grid">
+              <label class="wz-chip"><input type="radio" name="hora" value="13:00"><span>13:00</span></label>
+              <label class="wz-chip"><input type="radio" name="hora" value="13:30"><span>13:30</span></label>
+              <label class="wz-chip"><input type="radio" name="hora" value="14:00"><span>14:00</span></label>
+              <label class="wz-chip"><input type="radio" name="hora" value="14:30"><span>14:30</span></label>
+              <label class="wz-chip"><input type="radio" name="hora" value="20:00"><span>20:00</span></label>
+              <label class="wz-chip"><input type="radio" name="hora" value="20:30"><span>20:30</span></label>
+              <label class="wz-chip"><input type="radio" name="hora" value="21:00"><span>21:00</span></label>
+              <label class="wz-chip"><input type="radio" name="hora" value="21:30"><span>21:30</span></label>
+              <label class="wz-chip"><input type="radio" name="hora" value="22:00"><span>22:00</span></label>
+            </div>
+
+            <label class="wz-label mt-3">Comensales (máx. <span id="wz-max-cap">2</span>)</label>
+            <div class="wz-comensales">
+              <button type="button" class="wz-count-btn" id="wz-minus">−</button>
+              <span class="wz-count-val" id="wz-personas-val">2</span>
+              <input type="hidden" name="personas" id="wz-personas" value="2">
+              <button type="button" class="wz-count-btn" id="wz-plus">+</button>
+              <span class="wz-personas-lbl">personas</span>
+            </div>
+
+            <label class="wz-label mt-3">Ocasión especial</label>
+            <div class="wz-chip-grid two-col">
+              <label class="wz-chip-wide">
+                <input type="radio" name="ocasion" value="Ninguna" checked>
+                <span>Ninguna</span>
+              </label>
+              <label class="wz-chip-wide">
+                <input type="radio" name="ocasion" value="Cumpleaños">
+                <span>Cumpleaños 🎂</span>
+              </label>
+              <label class="wz-chip-wide">
+                <input type="radio" name="ocasion" value="Aniversario">
+                <span>Aniversario 💍</span>
+              </label>
+              <label class="wz-chip-wide">
+                <input type="radio" name="ocasion" value="Reunión de negocios">
+                <span>Reunión de negocios 💼</span>
+              </label>
+              <label class="wz-chip-wide">
+                <input type="radio" name="ocasion" value="Cena romántica">
+                <span>Cena romántica 🌹</span>
+              </label>
+              <label class="wz-chip-wide">
+                <input type="radio" name="ocasion" value="Celebración">
+                <span>Celebración 🎉</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="wz-step d-none" data-step="2">
+            <label class="wz-label">Pre-selecciona platos (opcional)</label>
+            <p class="wz-hint">Elige lo que te apetece para que la cocina esté lista</p>
+
+            <div class="wz-plato-list">
+              <label class="wz-plato-row" th:each="plato : ${preSeleccionables}">
+                <input type="checkbox" name="platoIds" th:value="${plato.id}">
+                <span class="wp-thumb"><i class="fas fa-utensils"></i></span>
+                <span class="flex-grow-1">
+                  <span class="wp-name" th:text="${plato.nombre}"></span>
+                  <span class="wp-desc" th:text="${plato.descripcion}"></span>
+                </span>
+                <span class="wp-price">€<span th:text="${plato.precio}"></span></span>
+                <span class="wp-check"><i class="fas fa-check"></i></span>
+              </label>
+            </div>
+
+            <label class="wz-label mt-3">Restricciones o alergias</label>
+            <div class="wz-chip-grid restr-grid">
+              <label class="wz-chip-wide"><input type="checkbox" name="restricciones" value="Sin gluten"><span>Sin gluten</span></label>
+              <label class="wz-chip-wide"><input type="checkbox" name="restricciones" value="Sin lactosa"><span>Sin lactosa</span></label>
+              <label class="wz-chip-wide"><input type="checkbox" name="restricciones" value="Vegetariano"><span>Vegetariano</span></label>
+              <label class="wz-chip-wide"><input type="checkbox" name="restricciones" value="Vegano"><span>Vegano</span></label>
+              <label class="wz-chip-wide"><input type="checkbox" name="restricciones" value="Sin frutos secos"><span>Sin frutos secos</span></label>
+              <label class="wz-chip-wide"><input type="checkbox" name="restricciones" value="Sin marisco"><span>Sin marisco</span></label>
+            </div>
+
+            <textarea class="form-control wz-input mt-3" name="notas" rows="2" placeholder="Otras solicitudes especiales..."></textarea>
+          </div>
+
+          <div class="wz-step d-none" data-step="3">
+            <div class="wz-confirm-banner"><i class="fas fa-check-circle me-2"></i>Reserva lista para confirmar</div>
+            <div class="wz-summary">
+              <div class="wz-sum-row"><span>Mesa</span><span id="wz-sum-mesa"></span></div>
+              <div class="wz-sum-row"><span>Fecha</span><span id="wz-sum-fecha"></span></div>
+              <div class="wz-sum-row"><span>Hora</span><span id="wz-sum-hora"></span></div>
+              <div class="wz-sum-row"><span>Comensales</span><span id="wz-sum-personas"></span></div>
+            </div>
+            <p class="wz-note">Recibirás confirmación por email. Puedes cancelar hasta 2h antes.</p>
+          </div>
+
+          <div class="wz-error d-none" id="wz-error"></div>
+        </div>
+
+        <div class="wz-footer">
+          <button type="button" class="wz-btn-back" id="wz-back">Atrás</button>
+          <button type="button" class="wz-btn-next" id="wz-next">Continuar →</button>
+          <button type="submit" class="wz-btn-confirm d-none" id="wz-submit">Confirmar reserva</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    document.querySelectorAll('.filter-tab').forEach(function (tab) {
+        tab.addEventListener('click', function () {
+            document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            const filtro = tab.getAttribute('data-filter');
+            document.querySelectorAll('.mesa-item').forEach(function (item) {
+                if (filtro === 'todas' || item.getAttribute('data-estado') === filtro) {
+                    item.style.display = '';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        });
+    });
+
+    // ===== Wizard de reserva (3 pasos) =====
+    const stepLabels = { 1: 'Fecha y hora', 2: 'Preferencias', 3: 'Confirmación' };
+    const stepTitles = { 1: '¿Cuándo vienen?', 2: 'Preferencias', 3: 'Confirmar reserva' };
+    let currentStep = 1;
+    let maxCapacidad = 2;
+
+    const overlay = document.getElementById('reservaModal');
+    const wzError = document.getElementById('wz-error');
+
+    function abrirModal() {
+        overlay.classList.add('wz-open');
+        document.body.style.overflow = 'hidden';
+    }
+    function cerrarModal() {
+        overlay.classList.remove('wz-open');
+        document.body.style.overflow = '';
+    }
+
+    function showError(msg) {
+        wzError.textContent = msg;
+        wzError.classList.remove('d-none');
+    }
+    function clearError() {
+        wzError.classList.add('d-none');
+        wzError.textContent = '';
+    }
+
+    function goToStep(step) {
+        currentStep = step;
+        document.querySelectorAll('.wz-step').forEach(function (el) {
+            el.classList.toggle('d-none', el.getAttribute('data-step') != step);
+        });
+        document.querySelectorAll('.wz-dot').forEach(function (dot) {
+            const n = parseInt(dot.getAttribute('data-dot'), 10);
+            dot.classList.toggle('active', n <= step);
+        });
+        document.getElementById('wz-step-label').textContent = stepLabels[step];
+        document.getElementById('wz-step-title').textContent = stepTitles[step];
+        document.getElementById('wz-back').style.visibility = step === 1 ? 'hidden' : 'visible';
+        document.getElementById('wz-next').classList.toggle('d-none', step === 3);
+        document.getElementById('wz-submit').classList.toggle('d-none', step !== 3);
+        if (step === 3) buildSummary();
+        clearError();
+    }
+
+    function buildSummary() {
+        const numero = document.getElementById('wz-mesa-label').getAttribute('data-numero');
+        const zona = document.getElementById('wz-mesa-label').getAttribute('data-zona');
+        document.getElementById('wz-sum-mesa').textContent = 'Mesa ' + numero + ' — ' + zona;
+        document.getElementById('wz-sum-fecha').textContent = document.getElementById('wz-fecha').value || '—';
+        const horaChecked = document.querySelector('input[name="hora"]:checked');
+        document.getElementById('wz-sum-hora').textContent = horaChecked ? horaChecked.value : '—';
+        document.getElementById('wz-sum-personas').textContent = document.getElementById('wz-personas').value + ' personas';
+    }
+
+    document.querySelectorAll('.btn-abrir-wizard').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            const mesaId = btn.getAttribute('data-mesa-id') || '';
+            const numero = btn.getAttribute('data-mesa-numero') || '';
+            const zona = btn.getAttribute('data-mesa-zona') || 'Salón';
+            const cap = parseInt(btn.getAttribute('data-mesa-cap'), 10) || 1;
+
+            document.getElementById('wizardForm').reset();
+            document.getElementById('wz-mesaId').value = mesaId;
+            const label = document.getElementById('wz-mesa-label');
+            label.textContent = 'MESA ' + numero + ' · ' + zona.toUpperCase();
+            label.setAttribute('data-numero', numero);
+            label.setAttribute('data-zona', zona);
+
+            maxCapacidad = cap;
+            document.getElementById('wz-max-cap').textContent = cap;
+            const personasIni = Math.min(2, cap);
+            document.getElementById('wz-personas').value = personasIni;
+            document.getElementById('wz-personas-val').textContent = personasIni;
+
+            goToStep(1);
+            abrirModal();
+        });
+    });
+
+    document.getElementById('wz-close').addEventListener('click', cerrarModal);
+    overlay.addEventListener('click', function (e) {
+        if (e.target === overlay) cerrarModal();
+    });
+
+    document.getElementById('wz-minus').addEventListener('click', function () {
+        const input = document.getElementById('wz-personas');
+        const val = Math.max(1, parseInt(input.value, 10) - 1);
+        input.value = val;
+        document.getElementById('wz-personas-val').textContent = val;
+    });
+    document.getElementById('wz-plus').addEventListener('click', function () {
+        const input = document.getElementById('wz-personas');
+        const val = Math.min(maxCapacidad, parseInt(input.value, 10) + 1);
+        input.value = val;
+        document.getElementById('wz-personas-val').textContent = val;
+    });
+
+    document.getElementById('wz-back').addEventListener('click', function () {
+        if (currentStep > 1) goToStep(currentStep - 1);
+    });
+
+    document.getElementById('wz-next').addEventListener('click', function () {
+        if (currentStep === 1) {
+            const fecha = document.getElementById('wz-fecha').value;
+            const hora = document.querySelector('input[name="hora"]:checked');
+            if (!fecha) { showError('Elige una fecha.'); return; }
+            if (!hora) { showError('Elige una hora.'); return; }
+        }
+        goToStep(currentStep + 1);
+    });
+
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ingresar - Restaurante</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            overflow: hidden;
+        }
+
+        .bg-image {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('https://imgs.search.brave.com/vk87aIjLgXCKjk67ASrQFwYlG47o492wemWErSdVxtA/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9tZWRp/YS1jZG4udHJpcGFk/dmlzb3IuY29tL21l/ZGlhL3Bob3RvLW8v/MDgvMzIvNTEvOWYv/aG90ZWwtbmVzLWFt/ZWxhbmQuanBn');
+            background-size: cover;
+            background-position: center;
+            filter: blur(8px) brightness(0.6);
+            transform: scale(1.1);
+            z-index: -1;
+        }
+
+        .login-container {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .login-card {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 40px;
+            border-radius: 35px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.3);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+            color: white;
+            animation: slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .restaurante-logo {
+            width: 70px;
+            height: 70px;
+            background: white;
+            color: #c0392b;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            margin: 0 auto 20px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+
+        .form-label {
+            font-size: 0.75rem;
+            font-weight: 800;
+            letter-spacing: 1px;
+            color: rgba(255,255,255,0.9);
+        }
+
+        .form-control {
+            border-radius: 12px;
+            padding: 12px 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            transition: all 0.3s;
+        }
+
+        .form-control::placeholder {
+            color: rgba(255,255,255,0.5);
+        }
+
+        .form-control:focus {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: white;
+            color: white;
+            box-shadow: none;
+        }
+
+        .password-group {
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .toggle-password {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-left: none;
+            color: white;
+            padding: 0 16px;
+            transition: all 0.3s;
+        }
+
+        .toggle-password:hover {
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+        }
+
+        .toggle-password:focus {
+            box-shadow: none;
+            outline: none;
+        }
+
+        .password-group .form-control {
+            border-right: none;
+        }
+
+        .btn-primary {
+            border-radius: 12px;
+            padding: 12px;
+            background: #c0392b;
+            border: none;
+            font-weight: 800;
+            font-size: 0.9rem;
+            margin-top: 10px;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-primary:hover {
+            background: #a5281a;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-image"></div>
+
+    <div class="login-container">
+        <div class="login-card">
+            <div class="restaurante-logo">
+                <i class="fas fa-utensils"></i>
+            </div>
+            <h3 class="fw-bold mb-1">Restaurante</h3>
+            <p class="small mb-4 text-white-50">Reserva tu mesa e ingresa a tu cuenta</p>
+
+            <div th:if="${param.error}" class="alert alert-danger rounded-3 text-center py-2 mb-3" style="background: rgba(220,53,69,0.2); border: 1px solid rgba(220,53,69,0.4); color: white;">
+                <i class="fas fa-exclamation-circle me-2"></i> DNI o Contraseña incorrectos
+            </div>
+
+            <form th:action="@{/login}" method="post" class="text-start">
+                <div class="mb-3">
+                    <label class="form-label">DNI</label>
+                    <input type="text" name="dni" class="form-control" placeholder="Ingresa tu DNI" required autofocus>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label">CONTRASEÑA</label>
+                    <div class="input-group password-group">
+                        <input
+                            type="password"
+                            name="password"
+                            id="password"
+                            class="form-control"
+                            placeholder="••••••••"
+                            required
+                        >
+                        <button type="button" class="toggle-password" id="togglePassword">
+                            <i class="fas fa-eye" id="toggleIcon"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100">Iniciar Sesión</button>
+            </form>
+
+            <div class="mt-4 pt-3 border-top border-white-10">
+                <p class="mb-0 x-small opacity-50">Demo admin: DNI 00000000 / admin123</p>
+                <p class="mb-0 x-small opacity-50">Demo cliente: DNI 11111111 / cliente123</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // OJITO MOSTRAR / OCULTAR CONTRASEÑA
+        const togglePassword = document.getElementById('togglePassword');
+        const passwordInput = document.getElementById('password');
+        const toggleIcon = document.getElementById('toggleIcon');
+
+        togglePassword.addEventListener('click', function () {
+            const isPassword = passwordInput.getAttribute('type') === 'password';
+            passwordInput.setAttribute('type', isPassword ? 'text' : 'password');
+
+            if (isPassword) {
+                toggleIcon.classList.remove('fa-eye');
+                toggleIcon.classList.add('fa-eye-slash');
+            } else {
+                toggleIcon.classList.remove('fa-eye-slash');
+                toggleIcon.classList.add('fa-eye');
+            }
+        });
+    </script>
+</body>
+</html>

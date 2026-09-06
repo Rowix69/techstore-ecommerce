@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head><meta charset="UTF-8"></head>
+<body>
+<nav th:fragment="navbar(activo)" class="navbar navbar-expand navbar-restaurante px-3 mb-4">
+    <a class="navbar-brand" href="#">
+        <span class="brand-badge"><i class="fas fa-utensils"></i></span>
+        Restaurante
+    </a>
+    <div class="navbar-nav" sec:authorize="hasRole('CLIENTE')">
+        <a class="nav-link" th:classappend="${activo == 'inicio'} ? 'fw-bold' : ''" th:href="@{/cliente/inicio}">Inicio</a>
+        <a class="nav-link" th:classappend="${activo == 'mesas'} ? 'fw-bold' : ''" th:href="@{/cliente/mesas}">Mesas</a>
+        <a class="nav-link" th:classappend="${activo == 'eventos'} ? 'fw-bold' : ''" th:href="@{/cliente/eventos}">Eventos</a>
+        <a class="nav-link" th:classappend="${activo == 'mireserva'} ? 'fw-bold' : ''" th:href="@{/cliente/mireserva}">
+            Mis reservas
+            <span class="nav-badge" th:if="${misReservasCount != null and misReservasCount > 0}" th:text="${misReservasCount}"></span>
+        </a>
+        <a class="nav-link" th:classappend="${activo == 'perfil'} ? 'fw-bold' : ''" th:href="@{/cliente/perfil}">Mi perfil</a>
+    </div>
+
+    <div class="navbar-nav" sec:authorize="hasRole('ADMIN')">
+        <a class="nav-link" th:classappend="${activo == 'dashboard'} ? 'fw-bold' : ''" th:href="@{/admin/dashboard}">Panel</a>
+        <a class="nav-link" th:classappend="${activo == 'mesas'} ? 'fw-bold' : ''" th:href="@{/admin/mesas}">Mesas</a>
+        <a class="nav-link" th:classappend="${activo == 'platos'} ? 'fw-bold' : ''" th:href="@{/admin/platos}">Carta</a>
+        <a class="nav-link" th:classappend="${activo == 'reservas'} ? 'fw-bold' : ''" th:href="@{/admin/reservas}">Reservas</a>
+    </div>
+    <form th:action="@{/logout}" method="post" class="ms-auto">
+        <button class="btn-logout" type="submit"><i class="fas fa-arrow-right-from-bracket me-1"></i> Cerrar sesión</button>
+    </form>
+</nav>
+</body>
+</html>
