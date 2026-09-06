@@ -41,22 +41,25 @@ public class DataInitializer implements CommandLineRunner {
 
         // Mesas de ejemplo
         if (mesaRepository.count() == 0) {
+            String[] zonas = {"Terraza", "Interior", "Salón Principal"};
             for (int i = 1; i <= 8; i++) {
-                mesaRepository.save(new Mesa(i, (i % 2 == 0) ? 4 : 2));
+                mesaRepository.save(new Mesa(i, (i % 2 == 0) ? 4 : 2, zonas[i % zonas.length]));
             }
         }
 
         // Carta de ejemplo
         if (platoRepository.count() == 0) {
-            platoRepository.save(new Plato("Lomo Saltado", "Clásico peruano con papas fritas", new BigDecimal("32.00"), CategoriaPlato.PRINCIPAL));
-            platoRepository.save(new Plato("Arroz con Pollo", "Arroz verde con pollo y papa a la huancaína", new BigDecimal("28.00"), CategoriaPlato.PRINCIPAL));
-            platoRepository.save(new Plato("Tallarines Verdes", "Con bistec apanado", new BigDecimal("30.00"), CategoriaPlato.PRINCIPAL));
+            platoRepository.save(new Plato("Tartar de Atún", "Atún rojo, aguacate, yuzu", new BigDecimal("18.00"), CategoriaPlato.ENTRANTE));
+            platoRepository.save(new Plato("Croquetas Ibéricas", "Jamón 100% ibérico", new BigDecimal("14.00"), CategoriaPlato.ENTRANTE));
 
-            platoRepository.save(new Plato("Suspiro a la Limeña", "Postre tradicional", new BigDecimal("12.00"), CategoriaPlato.POSTRE));
-            platoRepository.save(new Plato("Mazamorra Morada", "Postre a base de maíz morado", new BigDecimal("10.00"), CategoriaPlato.POSTRE));
+            platoRepository.save(new Plato("Salmón a la Plancha", "Eneldo, puré de chirivía", new BigDecimal("26.00"), CategoriaPlato.PRINCIPAL));
+            platoRepository.save(new Plato("Entrecot Madurado", "45 días, mantequilla de trufa", new BigDecimal("34.00"), CategoriaPlato.PRINCIPAL));
 
-            platoRepository.save(new Plato("Chicha Morada", "Bebida tradicional", new BigDecimal("8.00"), CategoriaPlato.BEBIDA));
-            platoRepository.save(new Plato("Gaseosa", "500 ml", new BigDecimal("6.00"), CategoriaPlato.BEBIDA));
+            platoRepository.save(new Plato("Coulant de Chocolate", "Chocolate 70%, helado vainilla", new BigDecimal("10.00"), CategoriaPlato.POSTRE));
+            platoRepository.save(new Plato("Tarta de Queso", "Estilo vasco, frutos rojos", new BigDecimal("9.00"), CategoriaPlato.POSTRE));
+
+            platoRepository.save(new Plato("Agua con Gas", "500 ml", new BigDecimal("4.00"), CategoriaPlato.BEBIDA));
+            platoRepository.save(new Plato("Copa de Vino de la Casa", "Tinto o blanco", new BigDecimal("6.00"), CategoriaPlato.BEBIDA));
         }
     }
 }

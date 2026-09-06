@@ -20,11 +20,21 @@ public class Mesa {
     @Column(nullable = false)
     private EstadoMesa estado = EstadoMesa.LIBRE;
 
+    @Column(nullable = false)
+    private String zona = "Salón";
+
     public Mesa() {}
 
     public Mesa(Integer numero, Integer capacidad) {
         this.numero = numero;
         this.capacidad = capacidad;
+        this.estado = EstadoMesa.LIBRE;
+    }
+
+    public Mesa(Integer numero, Integer capacidad, String zona) {
+        this.numero = numero;
+        this.capacidad = capacidad;
+        this.zona = zona;
         this.estado = EstadoMesa.LIBRE;
     }
 
@@ -39,4 +49,7 @@ public class Mesa {
 
     public EstadoMesa getEstado() { return estado; }
     public void setEstado(EstadoMesa estado) { this.estado = estado; }
+
+    public String getZona() { return (zona == null || zona.isBlank()) ? "Salón" : zona; }
+    public void setZona(String zona) { this.zona = zona; }
 }

@@ -16,10 +16,19 @@ public class CartaService {
         this.platoRepository = platoRepository;
     }
 
+    public List<Plato> entrantes() { return platoRepository.findByCategoria(CategoriaPlato.ENTRANTE); }
     public List<Plato> principales() { return platoRepository.findByCategoria(CategoriaPlato.PRINCIPAL); }
     public List<Plato> postres() { return platoRepository.findByCategoria(CategoriaPlato.POSTRE); }
     public List<Plato> bebidas() { return platoRepository.findByCategoria(CategoriaPlato.BEBIDA); }
     public List<Plato> todos() { return platoRepository.findAll(); }
+
+    public List<Plato> preSeleccionables() {
+        List<Plato> lista = new java.util.ArrayList<>();
+        lista.addAll(entrantes());
+        lista.addAll(principales());
+        lista.addAll(postres());
+        return lista;
+    }
     public Plato guardar(Plato p) { return platoRepository.save(p); }
     public void eliminar(Long id) { platoRepository.deleteById(id); }
 }

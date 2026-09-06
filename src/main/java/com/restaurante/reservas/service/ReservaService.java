@@ -5,7 +5,6 @@ import com.restaurante.reservas.repository.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -33,15 +32,6 @@ public class ReservaService {
     @Transactional
     public Reserva crearReserva(Usuario cliente, Long mesaId, Long platoPrincipalId,
                                  Long platoPostreId, Long platoBebidaId) {
-        return crearReserva(cliente, mesaId, platoPrincipalId, platoPostreId, platoBebidaId,
-                null, null, null, null, null);
-    }
-
-    @Transactional
-    public Reserva crearReserva(Usuario cliente, Long mesaId, Long platoPrincipalId,
-                                 Long platoPostreId, Long platoBebidaId,
-                                 LocalDateTime fechaHora, Integer comensales, String ocasionEspecial,
-                                 String restricciones, String notasEspeciales) {
 
         // Regla: una mesa/reserva activa por cliente
         if (buscarReservaActiva(cliente).isPresent()) {
@@ -68,15 +58,6 @@ public class ReservaService {
         reserva.setCliente(cliente);
         reserva.setMesa(mesa);
         reserva.setEstado(EstadoReserva.CONFIRMADA);
-        if (fechaHora != null) {
-            reserva.setFechaHora(fechaHora);
-        }
-        if (comensales != null) {
-            reserva.setComensales(comensales);
-        }
-        reserva.setOcasionEspecial(ocasionEspecial);
-        reserva.setRestricciones(restricciones);
-        reserva.setNotasEspeciales(notasEspeciales);
         reserva.addDetalle(new DetalleReserva(principal, 1));
 
         // Postre: opcional
@@ -97,6 +78,51 @@ public class ReservaService {
                 throw new IllegalArgumentException("El plato seleccionado no es una bebida.");
             }
             reserva.addDetalle(new DetalleReserva(bebida, 1));
+        }
+
+        mesa.setEstado(EstadoMesa.RESERVADA);
+        mesaRepository.save(mesa);
+
+        return reservaRepository.save(reserva);
+    }
+
+    @Transactional
+    public Reserva crearReservaConDetalle(Usuario cliente, Long mesaId, java.time.LocalDateTime fechaHora,
+                                           Integer personas, String ocasion, List<Long> platoIds,
+                                           List<String> restricciones, String notas) {
+
+        if (buscarReservaActiva(cliente).isPresent()) {
+            throw new IllegalStateException("Ya tienes una reserva activa. Cancélala antes de reservar otra mesa.");
+        }
+
+        Mesa mesa = mesaRepository.findById(mesaId)
+                .orElseThrow(() -> new IllegalArgumentException("La mesa no existe."));
+        if (mesa.getEstado() != EstadoMesa.LIBRE) {
+            throw new IllegalStateException("Esa mesa ya está reservada.");
+        }
+        if (personas == null || personas < 1 || personas > mesa.getCapacidad()) {
+            throw new IllegalArgumentException("El número de comensales no es válido para esta mesa.");
+        }
+        if (fechaHora == null) {
+            throw new IllegalArgumentException("Debes elegir fecha y hora.");
+        }
+
+        Reserva reserva = new Reserva();
+        reserva.setCliente(cliente);
+        reserva.setMesa(mesa);
+        reserva.setEstado(EstadoReserva.CONFIRMADA);
+        reserva.setFechaHora(fechaHora);
+        reserva.setPersonas(personas);
+        reserva.setOcasion((ocasion == null || ocasion.isBlank() || ocasion.equalsIgnoreCase("Ninguna")) ? null : ocasion);
+        reserva.setRestricciones((restricciones == null || restricciones.isEmpty()) ? null : String.join(", ", restricciones));
+        reserva.setNotas((notas == null || notas.isBlank()) ? null : notas);
+
+        if (platoIds != null) {
+            for (Long platoId : platoIds) {
+                Plato plato = platoRepository.findById(platoId)
+                        .orElseThrow(() -> new IllegalArgumentException("Plato inválido."));
+                reserva.addDetalle(new DetalleReserva(plato, 1));
+            }
         }
 
         mesa.setEstado(EstadoMesa.RESERVADA);
