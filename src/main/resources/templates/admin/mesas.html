@@ -2,8 +2,10 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestión de Mesas</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Inter:wght@400;500;600;700;800&display=swap');
 
@@ -19,6 +21,7 @@
             --muted: #8a7b6f;
             --line: #e7ddcf;
             --green: #3f8b52;
+            --green-soft: rgba(63, 139, 82, 0.12);
         }
 
         * { box-sizing: border-box; }
@@ -35,7 +38,7 @@
 
         a { text-decoration: none; }
 
-        /* ===== NAVBAR ===== */
+        /* ===== NAVBAR (sin cambios respecto al resto del sitio) ===== */
         .navbar-restaurante {
             background-color: var(--dark);
             padding: 14px 28px;
@@ -64,9 +67,7 @@
             color: #fff;
         }
 
-        .navbar-restaurante .navbar-nav {
-            gap: 6px;
-        }
+        .navbar-restaurante .navbar-nav { gap: 6px; }
 
         .navbar-restaurante .nav-link {
             color: rgba(255,255,255,0.65) !important;
@@ -118,43 +119,340 @@
             background: rgba(255,255,255,0.12);
             color: #fff;
         }
+
+        /*
+          A partir de aquí, todas las clases nuevas usan el prefijo "tm-"
+          (Table Management) para no chocar con clases de otras vistas
+          (ej. .stat-card, .mesa-card, .page-hero de otras pantallas).
+        */
+
+        .tm-hero {
+            padding: 36px 0 4px;
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .tm-eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: var(--accent);
+            background: var(--accent-soft);
+            padding: 6px 14px;
+            border-radius: 999px;
+            margin-bottom: 14px;
+        }
+
+        .tm-hero h1 {
+            font-size: 1.9rem;
+            font-weight: 800;
+            margin-bottom: 4px;
+            color: var(--dark);
+        }
+
+        .tm-hero p {
+            color: var(--muted);
+            font-size: 0.95rem;
+            margin: 0;
+        }
+
+        .tm-summary {
+            display: flex;
+            gap: 22px;
+        }
+
+        .tm-summary-item {
+            text-align: right;
+        }
+
+        .tm-summary-value {
+            font-family: 'Playfair Display', serif;
+            font-weight: 800;
+            font-size: 1.5rem;
+            color: var(--dark);
+            line-height: 1;
+        }
+
+        .tm-summary-label {
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        /* ===== PANEL CONTENEDOR ===== */
+        .tm-panel {
+            background: #fff;
+            border: 1px solid var(--line);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(43, 33, 28, 0.06);
+            margin: 26px 0 40px;
+            overflow: hidden;
+        }
+
+        .tm-panel-header {
+            padding: 22px 26px;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .tm-form {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 14px;
+            align-items: flex-end;
+        }
+
+        .tm-form .tm-field label {
+            display: block;
+            font-size: 0.76rem;
+            font-weight: 700;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+            margin-bottom: 6px;
+        }
+
+        .tm-form .form-control {
+            border: 1.5px solid var(--line);
+            border-radius: 10px;
+            padding: 9px 14px;
+            font-size: 0.95rem;
+            width: 160px;
+        }
+
+        .tm-form .form-control:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-soft);
+            outline: none;
+        }
+
+        .tm-btn-add {
+            background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+            border: none;
+            color: #fff;
+            font-weight: 700;
+            font-size: 0.9rem;
+            border-radius: 10px;
+            padding: 10px 22px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: transform .15s ease, filter .15s ease;
+        }
+
+        .tm-btn-add:hover {
+            filter: brightness(1.08);
+            color: #fff;
+            transform: translateY(-1px);
+        }
+
+        /* ===== LISTA DE MESAS (filas, no tarjetas) ===== */
+        .tm-row {
+            display: grid;
+            grid-template-columns: 64px 1fr auto auto auto;
+            align-items: center;
+            gap: 18px;
+            padding: 16px 26px;
+            border-bottom: 1px solid var(--line);
+            transition: background .15s ease;
+        }
+
+        .tm-row:last-child { border-bottom: none; }
+
+        .tm-row:hover { background: #fbf8f3; }
+
+        .tm-row-badge {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: var(--dark);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Playfair Display', serif;
+            font-weight: 800;
+            font-size: 1.15rem;
+        }
+
+        .tm-row-title {
+            font-weight: 700;
+            font-size: 0.98rem;
+            color: var(--dark);
+        }
+
+        .tm-row-sub {
+            font-size: 0.8rem;
+            color: var(--muted);
+        }
+
+        .tm-capacidad-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--ink);
+            background: #f3ede2;
+            padding: 6px 12px;
+            border-radius: 999px;
+            white-space: nowrap;
+        }
+
+        .tm-capacidad-chip i { color: var(--gold); }
+
+        .tm-estado-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            padding: 6px 14px;
+            border-radius: 999px;
+            white-space: nowrap;
+        }
+
+        .tm-estado-pill.tm-libre { background: var(--green-soft); color: var(--green); }
+        .tm-estado-pill.tm-ocupada { background: var(--accent-soft); color: var(--accent); }
+
+        .tm-estado-pill .tm-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+
+        .tm-btn-delete {
+            border: 1.5px solid var(--line);
+            background: transparent;
+            color: var(--muted);
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all .15s ease;
+        }
+
+        .tm-btn-delete:hover {
+            border-color: var(--accent);
+            background: var(--accent-soft);
+            color: var(--accent-dark);
+        }
+
+        .tm-empty {
+            padding: 60px 20px;
+            text-align: center;
+            color: var(--muted);
+        }
+
+        .tm-empty i {
+            font-size: 2rem;
+            color: var(--gold);
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        @media (max-width: 640px) {
+            .tm-row {
+                grid-template-columns: 44px 1fr;
+                grid-template-areas:
+                    "badge title"
+                    "cap   cap"
+                    "estado estado"
+                    "del   del";
+                row-gap: 10px;
+            }
+            .tm-row-badge { grid-area: badge; width: 40px; height: 40px; font-size: 1rem; }
+            .tm-row-title, .tm-row-sub { grid-area: title; }
+            .tm-capacidad-chip { grid-area: cap; justify-self: start; }
+            .tm-estado-pill { grid-area: estado; justify-self: start; }
+            .tm-btn-delete { grid-area: del; justify-self: start; }
+        }
     </style>
 </head>
 <body>
 <div th:replace="~{fragments/layout :: navbar('mesas')}"></div>
 
+<div class="container tm-hero">
+    <div>
+        <span class="tm-eyebrow"><i class="bi bi-grid-3x3-gap-fill"></i> Administración</span>
+        <h1>Gestión de Mesas</h1>
+        <p>Agrega nuevas mesas y controla su capacidad y disponibilidad.</p>
+    </div>
+
+    <div class="tm-summary">
+        <div class="tm-summary-item">
+            <div class="tm-summary-value" th:text="${#lists.size(mesas)}">0</div>
+            <div class="tm-summary-label">Total mesas</div>
+        </div>
+    </div>
+</div>
+
 <div class="container">
-    <h3>Mesas</h3>
 
-    <form th:action="@{/admin/mesas}" method="post" class="row g-2 mb-4">
-        <div class="col-auto">
-            <input type="number" name="numero" class="form-control" placeholder="N° de mesa" required>
+    <div class="tm-panel">
+        <div class="tm-panel-header">
+            <form th:action="@{/admin/mesas}" method="post" class="tm-form">
+                <div class="tm-field">
+                    <label>N° de mesa</label>
+                    <input type="number" name="numero" class="form-control" placeholder="Ej. 5" required>
+                </div>
+                <div class="tm-field">
+                    <label>Capacidad</label>
+                    <input type="number" name="capacidad" class="form-control" placeholder="Ej. 4" required>
+                </div>
+                <div class="tm-field">
+                    <button type="submit" class="tm-btn-add">
+                        <i class="bi bi-plus-lg"></i> Agregar mesa
+                    </button>
+                </div>
+            </form>
         </div>
-        <div class="col-auto">
-            <input type="number" name="capacidad" class="form-control" placeholder="Capacidad" required>
-        </div>
-        <div class="col-auto">
-            <button type="submit" class="btn btn-danger">Agregar mesa</button>
-        </div>
-    </form>
 
-    <table class="table table-bordered bg-white">
-        <thead>
-        <tr><th>N°</th><th>Capacidad</th><th>Estado</th><th></th></tr>
-        </thead>
-        <tbody>
-        <tr th:each="mesa : ${mesas}">
-            <td th:text="${mesa.numero}"></td>
-            <td th:text="${mesa.capacidad}"></td>
-            <td th:text="${mesa.estado}"></td>
-            <td>
-                <form th:action="@{/admin/mesas/eliminar/{id}(id=${mesa.id})}" method="post" style="display:inline">
-                    <button class="btn btn-sm btn-outline-danger" onclick="return confirm('¿Eliminar mesa?');">Eliminar</button>
+        <div th:if="${not #lists.isEmpty(mesas)}">
+            <div class="tm-row" th:each="mesa : ${mesas}">
+                <div class="tm-row-badge" th:text="${mesa.numero}"></div>
+
+                <div>
+                    <div class="tm-row-title">Mesa <span th:text="${mesa.numero}"></span></div>
+                    <div class="tm-row-sub">Identificador interno #<span th:text="${mesa.id}"></span></div>
+                </div>
+
+                <span class="tm-capacidad-chip">
+                    <i class="bi bi-people-fill"></i>
+                    <span th:text="${mesa.capacidad} + ' personas'"></span>
+                </span>
+
+                <span class="tm-estado-pill"
+                      th:classappend="${mesa.estado == 'LIBRE'} ? 'tm-libre' : 'tm-ocupada'">
+                    <span class="tm-dot"></span>
+                    <span th:text="${mesa.estado}"></span>
+                </span>
+
+                <form th:action="@{/admin/mesas/eliminar/{id}(id=${mesa.id})}" method="post">
+                    <button type="submit" class="tm-btn-delete" onclick="return confirm('¿Eliminar mesa?');" title="Eliminar mesa">
+                        <i class="bi bi-trash3"></i>
+                    </button>
                 </form>
-            </td>
-        </tr>
-        </tbody>
-    </table>
+            </div>
+        </div>
+
+        <div class="tm-empty" th:if="${#lists.isEmpty(mesas)}">
+            <i class="bi bi-table"></i>
+            Aún no has registrado ninguna mesa. Agrega la primera desde el formulario de arriba.
+        </div>
+    </div>
+
 </div>
 </body>
 </html>
