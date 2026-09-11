@@ -340,7 +340,7 @@
                 <span>Total</span>
                 <span style="color: var(--accent)">S/ <span th:text="${#aggregates.sum(reserva.detalles.![plato.precio])}"></span></span>
             </div>
-
+            <span>Total</span>
             <form th:action="@{/cliente/mireserva/cancelar/{id}(id=${reserva.id})}" method="post"
                   onsubmit="return confirm('¿Seguro que deseas cancelar tu reserva?');">
                 <button type="submit" class="btn-cancelar-reserva"><i class="fas fa-ban me-1"></i> Cancelar reserva</button>
